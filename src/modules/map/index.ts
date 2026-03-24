@@ -1,4 +1,4 @@
-import {BMapInitCallBackParam, PosPoint} from "../../types";
+import {BMapInitCallBackParam, PosPoint} from "@/types";
 
 let BMapGLInstance:typeof BMapGL | null = null
 let mapInstance:BMapGL.Map | null

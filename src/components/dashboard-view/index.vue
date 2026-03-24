@@ -3,19 +3,12 @@
 import {DroneBundle} from "@/types";
 import {ImagePreview} from "@varlet/ui";
 
-const props = defineProps<{
+defineProps<{
   obj: DroneBundle,
   hideClose:boolean,
 }>();
 
 defineEmits(['close'])
-//
-// watch(() => props.obj, (newVal, oldVal) => {
-//   if (newVal?.sn !== oldVal?.sn) {
-//     // SN 变化，重置组件状态
-//     resetDashboard()
-//   }
-// }, { immediate: true, deep: true })
 
 </script>
 

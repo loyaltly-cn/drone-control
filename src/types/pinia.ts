@@ -1,12 +1,5 @@
-
-export default reactive<Global>({
-    baidu_ak:'',
-    dev:false,
-    devices:[],
-});
-
 /**全局共享变量池 */
-interface Global {
+export interface PiniaStore {
     /**百度地图ak */
     baidu_ak: string;
     /**无人机sn对应型号&color */
@@ -16,9 +9,8 @@ interface Global {
 
 }
 
-interface Devices{
+export interface Devices{
     sn:string
     type:string
     color:string
 }
-

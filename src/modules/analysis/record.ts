@@ -1,4 +1,4 @@
-import {DroneBundle} from "../../types";
+import {DroneBundle} from "@/types";
 
 const view_cover_object = (drone:DroneBundle)=> {
     const list = drone.dashboard.list
@@ -48,7 +48,7 @@ function encode(data: number[]): ArrayBuffer {
 }
 
 // 解码
-function decode(buffer: ArrayBuffer): number[] {
+function record_decode(buffer: ArrayBuffer): number[] {
     const view = new DataView(buffer)
     const result: number[] = []
     let offset = 0
@@ -73,7 +73,7 @@ function decode(buffer: ArrayBuffer): number[] {
 }
 
 
-export default {
+export {
     view_cover_object,
-    decode
+    record_decode
 }

@@ -1,6 +1,6 @@
 import {StyleProvider, Themes} from "@varlet/ui";
-// import theme from "./custom";
-import { theme_type } from "./type";
+import {theme_type} from "@/types";
+
 const toggleTheme = (type:theme_type) =>{
     console.log(type)
     switch (type){

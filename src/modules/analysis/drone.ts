@@ -1,6 +1,6 @@
 
 // 设备类型信息（创建时需要）
-import {DroneBundle, MSG_INFO, View_Control_Item} from "../../types";
+import {DroneBundle, MSG_INFO, View_Control_Item} from "@/types";
 
 interface DeviceType {
     type: string;

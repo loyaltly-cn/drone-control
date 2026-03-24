@@ -1,6 +1,6 @@
 import {Snackbar} from "@varlet/ui";
-import analysis from "../analysis";
-import {Serial} from "../../types";
+import {parseFrames} from "@/modules/analysis";
+import {Serial} from "@/types";
 import {bus} from "../hooks";
 
 let rxBuffer = new Uint8Array(0);
@@ -52,7 +52,7 @@ const read_loop = async () => {
             rxBuffer = concatUint8Array(rxBuffer, value);
             // console.log('收到:', value.length, '字节, 缓冲:', rxBuffer.length, '字节');
             // 解析帧
-            analysis.parseFrames(rxBuffer);
+            parseFrames(rxBuffer);
         }
 
         // console.log('正常结束读取');

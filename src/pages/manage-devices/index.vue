@@ -1,5 +1,5 @@
 <script setup>
-import global from "@/modules/global";
+import pinia from "@/modules/pinia";
 import obj from './index'
 import router from '@/modules/router'
 </script>
@@ -20,7 +20,7 @@ import router from '@/modules/router'
       <var-divider />
     </div>
     <div class="flex gap-5 flex-wrap justify-around">
-      <div class="var-elevation--2 flex flex-col gap-2 rounded-xl bg-hslSurfaceContainerHighest" v-for="(item,index) in global.devices" :key="index">
+      <div class="var-elevation--2 flex flex-col gap-2 rounded-xl bg-hslSurfaceContainerHighest" v-for="(item,index) in pinia().devices" :key="index">
         <var-image :src="`/drone/${item.type}.jpg`" radius="12" width="150" fit="cover"/>
         <div class="p-2 flex flex-col gap-2">
           <span>{{item.type}}</span>

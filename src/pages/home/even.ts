@@ -1,18 +1,19 @@
 import obj from './index'
-import theme from '../../modules/theme';
-import {theme_type} from '../../modules/theme/type';
-import serial from "../../modules/serial";
-import {bus} from "../../modules/hooks";
-import {init_map, jump_to_map} from "../../modules/map";
-import {BMapInitCallBackParam, DroneBundle, PosPoint} from "../../types";
+import theme from '@/modules/theme';
+import serial from "@/modules/serial";
+import {bus} from "@/modules/hooks";
+import {init_map, jump_to_map} from "@/modules/map";
+import {BMapInitCallBackParam, DroneBundle, PosPoint,theme_type} from "@/types";
 import render from "./render";
 import {Mode} from './types';
-import utils from "../../modules/utils";
+import utils from "@/modules/utils";
 import {Snackbar} from "@varlet/ui";
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import _ from 'lodash'
-import record from "../../modules/analysis/record.ts";
+import {view_cover_object} from "@/modules/analysis";
+
+
 let instance:BMapGL.Map | null
 let currentMarker: any = null
 
@@ -138,13 +139,13 @@ const ready_record = (sn: string) => {
         // 轨迹逻辑
         const posPoint = { lng: drone.map.lng, lat: drone.map.lat }
         pos_map(posPoint)
-
         if (!_.isEqual(posPoint, cache_point)) {
             // cache_timestamp = Date.now()
             obj.line_path.push(posPoint)
+            record_bin.push(<Uint8Array>(view_cover_object(drone)))
             updatePolyline()
-            record_bin.push(<Uint8Array>record.view_cover_object(drone))
             cache_point = _.cloneDeep(posPoint)
+
         }
     })
 }

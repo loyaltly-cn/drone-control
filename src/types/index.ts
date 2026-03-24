@@ -1,3 +1,5 @@
 export * from './baiduMap'
 export * from './serial'
 export * from './drone'
+export * from './pinia'
+export * from './theme'

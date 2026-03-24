@@ -11,6 +11,9 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    Dashboard: typeof import('./components/comm/dashboard.vue')['default']
+    DashboardView: typeof import('./components/dashboard-view/index.vue')['default']
+    DevBinData: typeof import('./components/dev-bin-data/index.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     VarBadge: typeof import('@varlet/ui')['_BadgeComponent']

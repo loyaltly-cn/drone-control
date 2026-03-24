@@ -1,4 +1,4 @@
-import {DroneBundle, PosPoint} from "../../types";
+import {DroneBundle, PosPoint} from "@/types";
 import {BarButton,Mode} from "./types";
 
 export default reactive({

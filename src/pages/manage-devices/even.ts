@@ -3,7 +3,7 @@ const add = async () =>{
 }
 
 const del = async (sn:string) =>{
-
+    console.log(sn)
 }
 
 const update = () =>{

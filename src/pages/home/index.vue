@@ -5,14 +5,12 @@
     BLocation,
     BMarker,
     BNavigation3d,
-    BPolyline
 } from 'vue3-baidu-map-gl'
     import obj from './index'
     import even from './even'
     import render from './render'
-    import global from "@/modules/global/index.ts";
-    import utils from "@/modules/utils/index.ts";
-    import dashboard from './comm/dashboard.vue'
+    import pinia from "@/modules/pinia";
+    import utils from "@/modules/utils";
     const init = e => even.init(e)
 </script>
 <template>
@@ -20,7 +18,7 @@
     <div id="dev"/>
     <div id="test"/>
     <div class="w-full h-screen relative overflow-hidden scrollbar-hide">
-      <BMap :ak="global.baidu_ak" height="100%" enableScrollWheelZoom enableDoubleClickZoom @initd="init">
+      <BMap :ak="pinia().baidu_ak" height="100%" enableScrollWheelZoom enableDoubleClickZoom @initd="init">
         <!-- default 模式 -->
         <div v-if="obj.mode === 'default'" v-for="(item, index) in obj.list" :key="index">
           <BMarker
@@ -49,26 +47,27 @@
                   <small>离线:{{obj.stats.offline}}</small>
                 </div>
             </div>
-            <var-divider /> 
+            <var-divider/>
         </div>
 
-        <var-cell v-for="(item,index) in obj.list" :key="index" :description="item.sn" border>
+        <TransitionGroup name="transition-list" tag="div">
+          <var-cell v-for="(item,index) in obj.list" :key="item.sn" :description="item.sn" border>
             <template #default>
-                <var-badge :type="item.cell.is_online?'success':'danger'" dot />
-                {{ item.cell.type }}
+              <var-badge :type="item.cell.is_online?'success':'danger'" dot />
+              {{ item.cell.type }}
             </template>
             <template #extra>
-                <div class="flex gap-1">
-                    <var-icon v-if="item.cell.show_map" name="map-marker-radius-outline" @click="even.jump_to_drone_for_map(index)"/>
-                    <var-icon :transition="30" :color="item.cell.show_map?'var(--color-primary)':''" :name="item.cell.show_map?'map-marker-radius':'map-marker-radius-outline'" @click="even.change_drone_map_show(index)"/>
-                    <var-icon name="dots-vertical" :color="item.cell.show_dashboard?'var(--color-primary)':''"  :name="item.cell.show_dashboard?'dots-vertical':'dots-vertical-outline'" @click="even.change_drone_dashboard_show(index)"/>
-                </div>
-            </template> 
-        </var-cell>
-        <div class="w5"></div>  
+              <div class="flex gap-1">
+                <var-icon v-if="item.cell.show_map" name="map-marker-radius-outline" @click="even.jump_to_drone_for_map(index)"/>
+                <var-icon :transition="30" :color="item.cell.show_map?'var(--color-primary)':''" :name="item.cell.show_map?'map-marker-radius':'map-marker-radius-outline'" @click="even.change_drone_map_show(index)"/>
+                <var-icon name="dots-vertical" :color="item.cell.show_dashboard?'var(--color-primary)':''"  :name="item.cell.show_dashboard?'dots-vertical':'dots-vertical-outline'" @click="even.change_drone_dashboard_show(index)"/>
+              </div>
+            </template>
+          </var-cell>
+        </TransitionGroup>
     </div>
 
-    <div class="text-sm flex gap-5 items-center fixed bottom-5 left-20 px-5 py-2 bg-hslSurfaceContainerHighest/90 rounded-12 z-10">
+    <div class="text-sm flex gap-5 items-center fixed bottom-5 left-20 px-5 py-2 bg-hslSurfaceContainerHighest/90 rounded-12 z-10 transition-all duration-300 ease-in-out w-auto min-w-fit">
         <div class="flex gap-2 items-center">
             <var-badge :type="obj.state.connect?'success':'danger'" dot />
             <small>设备状态: {{obj.state.connect?'已连接':'未连接' }}</small>
@@ -79,20 +78,12 @@
         <span class="hover:cursor-pointer hover:color-primary" v-for="(item,index) in obj.bar_button" :key="index" @click="item.func">{{item.label}}</span>
     </div>
 
-  <template v-if="obj.mode === 'default'" v-for="(item,index) in obj.list">
-    <dashboard
-        :obj="item"
-        v-if="item.cell.show_dashboard"
-        :key="item.lastUpdate"
-    @close="even.change_drone_dashboard_show(index)"
-    />
-  </template>
+    <template v-if="obj.mode === 'default'" v-for="(item,index) in obj.list">
+      <dashboard-view :obj="item" v-if="item.cell.show_dashboard" :key="item.lastUpdate" @close="even.change_drone_dashboard_show(index)"/>
+    </template>
 
-  <dashboard
-      v-if="obj.mode === 'record' && obj.record_drone.lastUpdate"
-      :key="obj.record_drone.lastUpdate"
-      :obj="obj.record_drone"
-  />
+    <dashboard-view  v-if="obj.mode === 'record' && obj.record_drone.lastUpdate" :key="obj.record_drone.lastUpdate" :obj="obj.record_drone"/>
+
     <var-popup v-model:show="obj.state.popup.setting" :default-style="false">
         <div class="p3 rounded-2 bg-hslSurfaceContainerHighest w-50">
             <h3 class="flex justify-center">系统设置</h3>
@@ -107,7 +98,7 @@
                     </var-menu-select>
                 </template>
             </var-cell>
-            <var-cell border v-if="global.dev">
+            <var-cell border v-if="pinia().dev">
               <template #default>
                 开发者选项
               </template>
@@ -142,25 +133,12 @@
       </div>
     </var-popup>
 
-  <var-drag  class="rounded-xl shadow flex flex-col gap-2 bg-hslSurfaceContainerHighest z-20 p-5 w-500px h-500px" teleport="#dev" v-if="obj.state.dev">
-    <h3 class="m0 py-2 flex justify-center">开发者模式</h3>
-    <var-divider />
-    <div class="w-100% bg-black rounded-xl">
-      <p class="flex justify-center">原始数据</p>
-      <div class="font-mono text-xs leading-tight flex flex-wrap">
-      <span
-          v-for="(byte, i) in obj.raw"
-          :key="i"
-          class="inline-block w-6 text-center"
-          :class="(i + 1) % 10 === 0 ? 'w-full h-0' : ''"
-      >
-        {{ byte.toString(16).padStart(2, '0').toUpperCase() }}
-        <sub class="block text-[8px] text-gray-400">{{ i }}</sub>
-      </span>
-      </div>
-    </div>
-    <var-icon name="window-close" class="absolute top-5 right-5 hover:cursor-pointer z-12" @click="even.close_dev()"/>
-  </var-drag>
+    <var-drag class="rounded-xl shadow flex flex-col gap-2 bg-hslSurfaceContainerHighest z-20 p-5 w-500px h-500px" teleport="#dev" v-if="obj.state.dev">
+      <h3 class="m0 py-2 flex justify-center">开发者模式</h3>
+      <var-divider />
+      <dev-bin-data :raw="obj.raw"/>
+      <var-icon name="window-close" class="absolute top-5 right-5 hover:cursor-pointer z-12" @click="even.close_dev()"/>
+    </var-drag>
 
   <div v-if="obj.mode === 'record'" class="flex justify-between gap-5 items-center fixed top-5 right-5 w-50 px-2 py-3 rounded-xl bg-primaryContainer z-100">
     <span>无人机{{obj.state.record?'录制中':'录制暂停'}}</span>
