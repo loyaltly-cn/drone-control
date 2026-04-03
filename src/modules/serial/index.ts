@@ -20,6 +20,7 @@ const connect = async () => {
     } catch (e:any) {
         Snackbar.error(e)
     } finally {
+        Snackbar.error('设备已断开')
         bus.emit('serial:status',false)
     }
 };
@@ -75,11 +76,7 @@ const disconnect = async () => {
     if (!serial.port) return;
 
     try {
-
-        if (serial.reader) {
-            await serial.reader!.cancel();
-        }
-
+        if (serial.reader) await serial.reader!.cancel()
         await serial.port!.close();
         serial.port = null;
 

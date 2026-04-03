@@ -9,10 +9,11 @@ export default async () =>{
     await initDB()
     Snackbar.allowMultiple(true)
     theme.init()
-    pinia().baidu_ak = await baiduKeyService.get()
+    // pinia().baidu_ak = await baiduKeyService.get()
     pinia().devices = await deviceService.getAll()
     dev(() =>{
         pinia().dev = true
         Snackbar.success('进入开发者模式')
     })
+
 }

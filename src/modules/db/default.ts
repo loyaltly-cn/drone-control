@@ -94,6 +94,10 @@ export const devices = [
     }, {
         sn: "1748FEV3",
         type: "DT EVO MAX",
-        color: "#000",
+        color: "#3ba644",
+    }, {
+        sn: "1581FA8J",
+        type: "Avata 360",
+        color: "#3979b8",
     }
 ]

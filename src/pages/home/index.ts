@@ -1,4 +1,4 @@
-import {DroneBundle, PosPoint} from "@/types";
+import {DroneBundle} from "@/types";
 import {BarButton,Mode} from "./types";
 
 export default reactive({
@@ -19,8 +19,8 @@ export default reactive({
         online:0,
         offline:0
     },
-    line_path:[] as Array<PosPoint>,
     raw:Uint8Array,
     bar_button:[] as BarButton[],
     record_drone:{} as DroneBundle,
+    current_drone:{} as DroneBundle,
 })

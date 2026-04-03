@@ -4,7 +4,7 @@ import {jumpToLocation} from "../../modules//babidu_map";
 // // 辅助函数：转十六进制
 const toHex = (arr: Uint8Array): string => [...arr].map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ');
 
-const getDroneIcon = (color: string = '#000000') => {
+export const getDroneIcon = (color: string = '#000000') => {
     const hexColor = color.startsWith('#') ? color : `#${color}`
 
     // DJI 风格四旋翼无人机
@@ -47,10 +47,13 @@ const once = <T extends (...args: any[]) => any>(fn: T) => {
     };
 };
 
+const queryUom =  (sn:string) =>  fetch(`https://uom.caac.gov.cn/api/home/anon/uavRegistShow/sn/${sn}`)
+
 export default {
     toHex,
     getDroneIcon,
     encode,
     decode,
-    once
+    once,
+    queryUom
 }

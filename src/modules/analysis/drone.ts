@@ -42,7 +42,7 @@ class DroneStore {
                     sn,
                     type: deviceType?.type || 'Unknown',
                     img:`/drone/${deviceType?.type || 'Unknown'}.jpg`,
-                    show_map: false,
+                    show_map: true,
                     show_dashboard: false,
                     record: false,
                     is_online: true
@@ -123,18 +123,14 @@ class DroneStore {
     }
 
     // 清理超时设备
-    cleanup(timeoutMs: number): string[] {
+    cleanup(timeoutMs: number) {
         const now = Date.now();
-        const removed: string[] = [];
-
         this.drones.forEach((bundle, sn) => {
             if (now - bundle.lastUpdate > timeoutMs) {
                 this.markOffline(sn);
-                removed.push(sn);
+                this.remove(sn)
             }
         });
-
-        return removed;
     }
 
     // ========== 辅助方法 ==========

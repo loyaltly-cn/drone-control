@@ -1,6 +1,5 @@
 import {bus} from "@/modules/hooks";
 import {droneStore} from "./drone.ts";
-import {Snackbar} from "@varlet/ui";
 import {MSG_Type} from "@/types";
 import pinia from "@/modules/pinia";
 
@@ -121,7 +120,7 @@ const processFrame = (frame: Uint8Array) => {
     });
 
     run_timer(sn)
-    bus.emit('drone:record',droneStore.get(sn))
+    // bus.emit('drone:record',droneStore.get(sn))
     bus.emit('drone:info',droneStore.list)
     bus.emit('drone:stats',droneStore.stats)
 };
@@ -131,10 +130,10 @@ const bytesToInt32 = (data: number[]) =>{
     const raw = (data[0] | (data[1] << 8) | (data[2] << 16) | (data[3] << 24)) >>> 0;
 
     // 转为 int32（补码）
-    const signed = raw > 0x7FFFFFFF ? raw - 0x100000000 : raw;
+    const signed = raw > 0x7FFFFFFF ? raw - 0x100000000 : raw
 
     // 转 float 并乘 1e-7（C 代码里没乘，但经纬度通常要转度）
-    return parseFloat((signed * 1e-7).toFixed(6));
+    return parseFloat(String((signed * 1e-7)))
 }
 
 
@@ -143,19 +142,18 @@ const run_timer = (sn:string) =>{
     //超过定时的无人机处理函数
     const func_cancel = (sn:string) =>{
         droneStore.markOffline(sn)
-        const type = pinia().devices.find(d => d.sn === sn.slice(0, 8));
-        Snackbar.warning(`设备${type}已离线`)
+        droneStore.cleanup(1000)
+        // const device = pinia().devices.find(d => d.sn === sn.slice(0, 8));
+        // Snackbar.warning(`设备${device?.type}已离线`)
+        bus.emit('drone:stats',droneStore.stats)
         timers.delete(sn)
     }
-
 
     // 清除旧定时器（如果存在）
     clearTimeout(timers.get(sn));
     // 重置定时器
     timers.set(sn, setTimeout(() => func_cancel(sn), 10000));
 }
-
-
 
 export {
     parseFrames

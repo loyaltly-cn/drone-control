@@ -115,3 +115,20 @@ export interface PosPoint{
 }
 
 export type MSG_Type = 'BASE'|'POS'|'SYSTEM'
+
+export interface UomRepBody{
+    msg:string
+    code:number
+    uomUavRegist:UomRepBody
+}
+
+export interface UomUavRegist{
+    uasCode:number|null
+    shengccsmc:string
+    chanpxh:string
+    chanpmc:string
+    /**注册人员/单位名称 */
+    xingm:string|null
+    /**phone*/
+    shoujhm:string|null
+}

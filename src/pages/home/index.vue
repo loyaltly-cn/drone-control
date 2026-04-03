@@ -1,40 +1,17 @@
 <script setup>
-  import { 
-    BMap,
-    BZoom, 
-    BLocation,
-    BMarker,
-    BNavigation3d,
-} from 'vue3-baidu-map-gl'
     import obj from './index'
     import even from './even'
     import render from './render'
     import pinia from "@/modules/pinia";
-    import utils from "@/modules/utils";
     const init = e => even.init(e)
 </script>
 <template>
     <div id="dashboard"/>
     <div id="dev"/>
     <div id="test"/>
-    <div class="w-full h-screen relative overflow-hidden scrollbar-hide">
-      <BMap :ak="pinia().baidu_ak" height="100%" enableScrollWheelZoom enableDoubleClickZoom @initd="init">
-        <!-- default 模式 -->
-        <div v-if="obj.mode === 'default'" v-for="(item, index) in obj.list" :key="index">
-          <BMarker
-              v-if="item.cell.show_map"
-              :key="item.sn"
-          :position="{ lng: item.map.lng, lat: item.map.lat }"
-          :icon="utils.getDroneIcon(item.map.color)"
-          />
-        </div>
-        <BLocation anchor="BMAP_ANCHOR_BOTTOM_RIGHT" />
-        <BZoom :offset="{ x: 28, y: 70 }"/>
-        <BNavigation3d anchor="BMAP_ANCHOR_BOTTOM_RIGHT" :offset="{ x: 15, y: 130 }" />
-      </BMap>
-    </div>
+    <Map @ready="init"/>
 
-    <div v-if="obj.mode === 'default'" class="flex flex-col gap-2 text-sm fixed top-1 right-1 bg-hslSurfaceContainerHighest rounded-2xl z-10 min-w-50 h-60% md3-scroll">
+    <div v-if="obj.mode === 'live'" class="flex flex-col gap-2 text-sm fixed top-1 right-1 bg-hslSurfaceContainerHighest rounded-2xl z-10 min-w-50 h-60% md3-scroll">
         <div class="flex px-2 pt-5 flex-col sticky top-0 z-1 bg-hslSurfaceContainerHighest">    
             <div class="flex gap-5 justify-between items-center">
                 <h3 class="my-0">无人机列表</h3>
@@ -58,30 +35,26 @@
             </template>
             <template #extra>
               <div class="flex gap-1">
-                <var-icon v-if="item.cell.show_map" name="map-marker-radius-outline" @click="even.jump_to_drone_for_map(index)"/>
-                <var-icon :transition="30" :color="item.cell.show_map?'var(--color-primary)':''" :name="item.cell.show_map?'map-marker-radius':'map-marker-radius-outline'" @click="even.change_drone_map_show(index)"/>
-                <var-icon name="dots-vertical" :color="item.cell.show_dashboard?'var(--color-primary)':''"  :name="item.cell.show_dashboard?'dots-vertical':'dots-vertical-outline'" @click="even.change_drone_dashboard_show(index)"/>
+                <var-icon class="hover:cursor-pointer"  name="map-marker-radius-outline" @click="even.jump_to_drone_for_map(item.map.lat,item.map.lng)"/>
+<!--                <var-icon class="hover:cursor-pointer" :transition="30" :color="item.cell.show_map?'var(&#45;&#45;color-primary)':''" :name="item.cell.show_map?'map-marker-radius':'map-marker-radius-outline'" @click="even.change_drone_map_show(index)"/>-->
+                <var-icon class="hover:cursor-pointer" name="dots-vertical" :color="item.cell.show_dashboard?'var(--color-primary)':''"  :name="item.cell.show_dashboard?'dots-vertical':'dots-vertical-outline'" @click="obj.current_drone = item"/>
               </div>
             </template>
           </var-cell>
         </TransitionGroup>
     </div>
 
-    <div class="text-sm flex gap-5 items-center fixed bottom-5 left-20 px-5 py-2 bg-hslSurfaceContainerHighest/90 rounded-12 z-10 transition-all duration-300 ease-in-out w-auto min-w-fit">
+    <div class="text-sm flex gap-5 items-center fixed bottom-2 left-20 px-5 py-2 bg-hslSurfaceContainerHighest/90 rounded-12 z-10 transition-all duration-300 ease-in-out w-auto min-w-fit">
         <div class="flex gap-2 items-center">
             <var-badge :type="obj.state.connect?'success':'danger'" dot />
             <small>设备状态: {{obj.state.connect?'已连接':'未连接' }}</small>
             <var-button :elevation="false" size="mini" :type="obj.state.connect?'danger':'success'" @click="even.change_connect_button">{{ obj.state.connect?'断开':'连接' }}</var-button>
         </div>
-        <span v-if="obj.mode === 'default'">无人机总数量{{obj.stats.total}}</span>
+        <span v-if="obj.mode === 'live'">无人机总数量{{obj.stats.total}}</span>
         <span class="hover:cursor-pointer hover:color-primary" v-if="obj.mode === 'record'" @click="even.toggle()">{{obj.state.record?'暂停':'继续'}}</span>
         <span class="hover:cursor-pointer hover:color-primary" v-for="(item,index) in obj.bar_button" :key="index" @click="item.func">{{item.label}}</span>
     </div>
-
-    <template v-if="obj.mode === 'default'" v-for="(item,index) in obj.list">
-      <dashboard-view :obj="item" v-if="item.cell.show_dashboard" :key="item.lastUpdate" @close="even.change_drone_dashboard_show(index)"/>
-    </template>
-
+    <dashboard-view  v-if="obj.mode === 'live' && obj.current_drone.lastUpdate" :key="obj.current_drone.lastUpdate" :obj="obj.current_drone" @close="obj.current_drone = {}"/>
     <dashboard-view  v-if="obj.mode === 'record' && obj.record_drone.lastUpdate" :key="obj.record_drone.lastUpdate" :obj="obj.record_drone"/>
 
     <var-popup v-model:show="obj.state.popup.setting" :default-style="false">

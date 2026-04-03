@@ -3,4 +3,4 @@ export interface BarButton{
     func:Function
 }
 
-export type Mode = 'default'|'record'
+export type Mode = 'default'|'live'|'record'

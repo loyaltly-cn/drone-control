@@ -1,7 +1,7 @@
 // db/baiduMap.ts
 import { db } from './index'
 
-const KEY = 'baiduMapKey'
+const KEY = 'map_key'
 
 export const baiduKeyService = {
     set: (key: string) => db.config.put({ key: KEY, value: key }),

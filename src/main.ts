@@ -10,6 +10,8 @@ import 'virtual:uno.css'
 import '@/css/global.css'
 import '@/css/transition.css'
 import '@/css/adaptive.css'
+import 'leaflet/dist/leaflet.css'
+
 createApp(App)
 .use(Varlet)
 .use(router)

@@ -19,11 +19,12 @@ export default {
     }],
     bar:{
         default:[{
-            label:'轨迹录制',
-            func:() => obj.state.connect?obj.state.popup.record = true:Snackbar.error('请先连接设备')
-        },{
+            label:'重置',
+            func:() => location.reload()
+        }],
+        live:[{
             label:'运动轨迹',
-            func:() => obj.state.popup.replay = true
+            func:() => obj.state.connect?obj.state.popup.record = true:Snackbar.error('请先连接设备')
         },{
             label:'设置',
             func:() => obj.state.popup.setting = true
