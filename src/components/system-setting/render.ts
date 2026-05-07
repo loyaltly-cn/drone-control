@@ -18,5 +18,12 @@ export default {
         label:'md3-亮色',
         value:'md3-light'
     }],
-    fps:[30,60]
+    fps:[30,60],
+    data_source:[{
+        label:'网路',
+        value:'websocket'
+    },{
+        label:'usb',
+        value:'serial'
+    }]
 }

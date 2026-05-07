@@ -8,7 +8,7 @@ export const devices = [
         type: "DJI Avata",
         color: "#e12222",
     }, {
-        sn: "1581F6W8",
+        sn: "1581F45T",
         type: "DJI Avata 2",
         color: "#a57b4a",
     }, {

@@ -5,13 +5,14 @@ import autoImport from 'unplugin-auto-import/vite'
 import { VarletImportResolver } from '@varlet/import-resolver'
 import UnoCSS from 'unocss/vite'
 import { resolve } from 'path'
-
+import JSX from '@vitejs/plugin-vue-jsx'
 const host = process.env.TAURI_DEV_HOST;
 
 // https://vite.dev/config/
 export default defineConfig(async () => ({
   plugins: [
     UnoCSS(),
+    JSX(),
     vue(),
      components({
       resolvers: [VarletImportResolver()],
@@ -38,14 +39,15 @@ export default defineConfig(async () => ({
   clearScreen: false,
   // 2. tauri expects a fixed port, fail if that port is not available
   server: {
-    port: 1420,
+    port: 8888,
     strictPort: true,
-    host: host || false,
+    // host: host || false,
+    host: '0.0.0.0',
     hmr: host
       ? {
           protocol: "ws",
           host,
-          port: 1421,
+          port: 8888,
         }
       : undefined,
     watch: {

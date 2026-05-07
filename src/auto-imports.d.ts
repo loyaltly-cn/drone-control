@@ -6,6 +6,7 @@
 // biome-ignore lint: disable
 export {}
 declare global {
+  const Dialog: typeof import('@varlet/ui').Dialog
   const EffectScope: typeof import('vue').EffectScope
   const Snackbar: typeof import('@varlet/ui').Snackbar
   const acceptHMRUpdate: typeof import('pinia').acceptHMRUpdate

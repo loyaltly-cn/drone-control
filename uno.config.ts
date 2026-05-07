@@ -9,17 +9,16 @@ export default defineConfig({
       'overflow-y': 'auto',
       'scrollbar-width': 'thin',
       'scrollbar-color': 'var(--color-text-disabled) transparent',
-      '&::-webkit-scrollbar': { width: '6px', height: '6px' },
-      '&::-webkit-scrollbar-track': { background: 'transparent' },
-      '&::-webkit-scrollbar-thumb': { 
-        background: 'var(--color-text-disabled)', 
-        borderRadius: '3px',
-        transition: 'background 0.2s'
-      },
-      '&::-webkit-scrollbar-thumb:hover': { 
-        background: 'var(--color-text-secondary)' 
-      },
-      '&::-webkit-scrollbar-corner': { background: 'transparent' },
     }],
+  ],
+  variants: [
+    // mobile: 前缀，屏幕 <= 450px 时生效
+    (matcher) => {
+      if (!matcher.startsWith('mobile:')) return matcher
+      return {
+        matcher: matcher.slice(7), // 去掉 mobile:
+        parent: '@media (max-width: 450px)', // 媒体查询包装
+      }
+    },
   ],
 })

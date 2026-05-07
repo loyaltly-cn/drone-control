@@ -1,4 +1,5 @@
-import {PosPoint} from "@/types/drone.ts";
+import {PosPoint} from "@/types/drone";
+import {DroneCoreData} from "@/modules/core";
 
 export interface DroneMapData {
     id: string
@@ -9,8 +10,7 @@ export interface DroneMapData {
 }
 
 export interface MapInstance {
-    updateDevice: (id: string, lng: number, lat: number, popup?: string, icon?: MapIcon) => void
-    updateDevices: (list: Array<{sn: string, map: {lng: number, lat: number}, cell: {type: string}}>) => void
+    updateDevice: (args: DroneCoreData) => void
     updateDeviceLine: (id: string, points: PosPoint[]) => void
     removeDevice: (id: string) => void
     clear: () => void

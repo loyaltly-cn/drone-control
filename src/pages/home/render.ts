@@ -1,8 +1,3 @@
-import obj from "./index.ts";
-import {Snackbar} from "@varlet/ui";
-import router from "../../modules/router";
-import even from './even'
-
 export default {
     theme:[{
         label:'跟随系统',
@@ -17,37 +12,4 @@ export default {
         label:'md3-亮色',
         value:'md3-light'
     }],
-    bar:{
-        default:[{
-            label:'重置',
-            func:() => location.reload()
-        }],
-        live:[{
-            label:'运动轨迹',
-            func:() => obj.state.connect?obj.state.popup.record = true:Snackbar.error('请先连接设备')
-        },{
-            label:'设置',
-            func:() => obj.state.popup.setting = true
-        },{
-            label:'管理',
-            func:() => router.push('manage-devices')
-        }],
-        record:[{
-            label:'重置',
-            func:() => even.reset()
-        },{
-            label:'定位',
-            func:() => even.pos()
-        },{
-            label:'保存',
-            func:() =>{
-
-            }
-        },{
-            label:'退出',
-            func:() =>{
-
-            }
-        }]
-    }
 }

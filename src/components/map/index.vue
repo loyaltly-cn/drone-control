@@ -2,25 +2,9 @@
 <template>
   <div class="relative w-screen h-screen">
     <div ref="mapEl" class="absolute inset-0 z-0"/>
-
-    <div class="absolute bottom-5 right-4 z-50 flex flex-col gap-2">
-      <button @click="zoomIn" class="w-10 h-10 bg-white rounded-lg shadow-lg flex items-center justify-center hover:bg-gray-100 hover:cursor-pointer">
-        <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-        </svg>
-      </button>
-
-      <button @click="zoomOut" class="w-10 h-10 bg-white rounded-lg shadow-lg flex items-center justify-center hover:bg-gray-100 hover:cursor-pointer">
-        <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
-        </svg>
-      </button>
-
-      <button @click="locateMe" class="w-10 h-10 bg-white rounded-lg shadow-lg flex items-center justify-center hover:bg-gray-100 hover:cursor-pointer">
-        <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
+    <div class="absolute mobile:bottom-13 bottom-2 left-2 z-50 flex flex-col gap-2">
+      <button v-for="(item,index) in buttons" :key="index" @click="item.func" class="w-10 h-10 mobile:w-8 mobile:h-8 bg-body rounded-lg shadow-lg flex items-center justify-center hover:cursor-pointer">
+        <var-icon :name="item.name" class="color-text"/>
       </button>
     </div>
   </div>
@@ -29,7 +13,20 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import L from 'leaflet'
-import {MapInstance} from "@/types";
+import {MapInstance} from "./types";
+import 'leaflet-rotatedmarker'
+import {createPopupEl} from "@/components/popup";
+
+const buttons = [{
+  name:'plus',
+  func:() => zoomIn()
+},{
+  name:'minus',
+  func:() => zoomOut()
+},{
+  name:'map-marker-radius-outline',
+  func:() =>locateMe()
+}]
 
 const emit = defineEmits<{
   ready: [instance: MapInstance]
@@ -43,14 +40,27 @@ let map: L.Map | null = null
 let currentMarker: L.Marker | null = null
 const markers = new Map<string, L.Marker>()
 const lines = new Map<string, L.Polyline>()
-
+const iconCache = new Map<string, L.Icon>()
+const getAircraftIcon = (size = 60): L.Icon => {
+  const key = `drone-${size}`
+  if (!iconCache.has(key)) {
+    const icon = L.icon({
+      iconUrl: '/drone.png',
+      iconSize: [size, size],
+      iconAnchor: [size / 2, size / 2], // 锚点在图标中心
+      popupAnchor: [0, -size / 2]
+    })
+    iconCache.set(key, icon)
+  }
+  return iconCache.get(key)!
+}
 onMounted(() => {
   if (!mapEl.value) return
 
   map = L.map(mapEl.value,{
     zoomControl:false,
     attributionControl:false
-  }).setView([39.9042, 116.4074], 16)
+  }).setView([31.678395832970725, 119.97093534871875], 16)
   L.control.attribution({
     prefix: '小域智能'
   }).addTo(map)
@@ -67,40 +77,44 @@ onMounted(() => {
       { subdomains: ['0','1','2','3','4','5','6','7'], zIndex: 100 }
   ).addTo(map)
 
-  browserLocate()
-  const iconCache = new Map<string, L.Icon>()
-  const getIcon = (iconData: any) => {
-    const key = `${iconData.imageUrl}-${iconData.size.width}-${iconData.size.height}`
-
-    if (!iconCache.has(key)) {
-      const icon = L.icon({
-        iconUrl: iconData.imageUrl,
-        iconSize: [iconData.size.width, iconData.size.height],
-        iconAnchor: [iconData.size.width / 2, iconData.size.height / 2],
-        popupAnchor: [0, -iconData.size.height / 2]
-      })
-      iconCache.set(key, icon)
-    }
-
-    return iconCache.get(key)!
-  }
-
   const instance: MapInstance = {
-    updateDevice: (id, lng, lat, popup, icon) => {
+    updateDevice: (args) => {
       if (!map) return
 
-      const existing = markers.get(id)
+      const existing = markers.get(args.sn)
+      const {lat,lng} = args
+      // 已存在
       if (existing) {
         existing.setLatLng([lat, lng])
+        ;(existing as any).setRotationAngle(args.heading)
+
+        // popup打开时更新内容
+        if (args && existing.isPopupOpen()) {
+          const el = createPopupEl({
+            ...args
+          })
+
+          existing.setPopupContent(el)
+        }
+
         return
       }
 
-      // 缓存 icon，避免重复创建
-      const markerIcon = icon ? getIcon(icon) : undefined
+      // 创建 marker
+      const marker = L.marker([lat, lng], {
+        icon: getAircraftIcon(40),
+      }).addTo(map)
 
-      const marker = L.marker([lat, lng], markerIcon ? { icon: markerIcon } : undefined).addTo(map)
-      if (popup) marker.bindPopup(popup)
-      markers.set(id, marker)
+      // ⭐⭐⭐ 关键：绑定 popup
+      if (args) {
+        const el = createPopupEl({
+         ...args
+        })
+
+        marker.bindPopup(el)
+      }
+
+      markers.set(args.sn, marker)
     },
 
     updateDeviceLine: (id, points) => {
@@ -152,7 +166,7 @@ const browserLocate = () => {
       (position) => {
         const { latitude, longitude } = position.coords
         map?.setView([latitude, longitude], 15)
-
+        console.log(latitude,longitude)
         currentMarker?.remove()
         currentMarker = L.circleMarker([latitude, longitude], {
           radius: 8,
