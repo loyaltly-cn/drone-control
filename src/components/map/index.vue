@@ -29,10 +29,11 @@ const buttons = [{
 }]
 
 const emit = defineEmits<{
+  on_line:[sn:string],
   ready: [instance: MapInstance]
 }>()
 
-
+const trackPoints = new Map<string, Array<[number, number]>>()
 const mapEl = ref<HTMLDivElement>()
 const TIANDITU_KEY = '8adcc486cb1f173f92102c2ec33763ae'
 
@@ -80,7 +81,7 @@ onMounted(() => {
   const instance: MapInstance = {
     updateDevice: (args) => {
       if (!map) return
-
+      const onLine = (sn:string) => emit('on_line',sn)
       const existing = markers.get(args.sn)
       const {lat,lng} = args
       // 已存在
@@ -90,9 +91,10 @@ onMounted(() => {
 
         // popup打开时更新内容
         if (args && existing.isPopupOpen()) {
-          const el = createPopupEl({
-            ...args
-          })
+          const el = createPopupEl(
+              { ...args },
+              onLine  // ← 加上事件回调
+          )
 
           existing.setPopupContent(el)
         }
@@ -105,11 +107,11 @@ onMounted(() => {
         icon: getAircraftIcon(40),
       }).addTo(map)
 
-      // ⭐⭐⭐ 关键：绑定 popup
       if (args) {
-        const el = createPopupEl({
-         ...args
-        })
+        const el = createPopupEl(
+            { ...args },
+            onLine  // ← 加上事件回调
+        )
 
         marker.bindPopup(el)
       }
@@ -117,14 +119,19 @@ onMounted(() => {
       markers.set(args.sn, marker)
     },
 
-    updateDeviceLine: (id, points) => {
-      if (!map || points.length < 2) return
+    updateDeviceLine: (id, point) => {
+      if (!map) return
+
+      // 获取或初始化该 id 的轨迹点
+      let pts = trackPoints.get(id) || []
+      pts.push([point.lat, point.lng])
+      trackPoints.set(id, pts)
+
       const existing = lines.get(id)
-      const latlngs = points.map(p => [p.lat, p.lng])
       if (existing) {
-        existing.setLatLngs(latlngs)
+        existing.setLatLngs(pts)
       } else {
-        const line = L.polyline(latlngs, { color: 'red', weight: 3 }).addTo(map)
+        const line = L.polyline(pts, { color: 'red', weight: 3 }).addTo(map)
         lines.set(id, line)
       }
     },

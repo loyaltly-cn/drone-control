@@ -7,7 +7,7 @@ import {DroneData, DroneMonitor} from "@/modules/core";
 import {parse_drone_data} from "@/modules/parser";
 //@ts-ignore
 let instance:MapInstance|null = null;
-
+let sns:Set<string> = new Set<string>()
 dayjs.extend(duration)
 
 // const BPS = 115200
@@ -28,7 +28,15 @@ const monitor = new DroneMonitor({
 monitor.onDiff(diff =>{
     const func = (arr: Map<string, DroneData>)=> arr.forEach(drone =>{
         const {core} = drone
+        // console.log(core.pressure_altitude,core.geometric_height,core.altitude)
         instance?.updateDevice(core);
+        if (sns.has(core.sn)){
+            const {sn,lat,lng} = core
+            instance?.updateDeviceLine(sn,{
+                lat,
+                lng
+            })
+        }
     });
 
     const {added,updated} = diff;
@@ -60,7 +68,12 @@ const change = (emit:Emits) => {
     }
 }
 
+const on_line = (sn:string) =>{
+    sns.add(sn)
+}
+
 export default{
     init,
-    change
+    change,
+    on_line
 }

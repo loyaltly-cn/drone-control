@@ -4,6 +4,6 @@
     const init = e => even.init(e)
 </script>
 <template>
-    <Map @ready="init"/>
+    <Map @ready="init" @on_line="even.on_line"/>
     <bottom-bar @change="even.change" :connect="state.connect" :pause="state.pause" :source="obj.source"/>
 </template>

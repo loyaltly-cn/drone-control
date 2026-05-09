@@ -11,13 +11,13 @@ export interface DroneCoreData {
     /** 纬度 */
     lat: number;
     /** 距地高度（米） */
-    altitude?: number;
+    altitude: number;
     /** 垂直速度（米/秒） */
-    altitude_speed?: number;
+    altitude_speed: number;
     /** 速度（米/秒） */
     speed?: number;
     /** 航向（度，0-360） */
-    heading?: number;
+    heading: number;
     /** 最后更新时间戳（毫秒） */
     last_update: number;
     /** 无人机名称 */

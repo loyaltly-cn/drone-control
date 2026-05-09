@@ -10,6 +10,7 @@ import { SerialConfig, Parser } from '../types';
  */
 export class SerialSource {
     /** 串口实例 */
+    //@ts-ignore
     private _port: SerialPort | null = null;
     /** 数据读取器 */
     private _reader: ReadableStreamDefaultReader<Uint8Array> | null = null;
@@ -62,6 +63,7 @@ export class SerialSource {
 
         try {
             // 请求用户选择串口
+            //@ts-ignore
             this._port = await navigator.serial.requestPort();
 
             // 打开串口

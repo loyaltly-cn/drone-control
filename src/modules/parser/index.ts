@@ -38,6 +38,8 @@ const bytesToInt32 = (data: number[]) =>{
     return parseFloat(String((signed * 1e-7)))
 }
 
+const bytesToUInt16 = (data: number[]) => (data[0] | (data[1] << 8))
+
 
 export function parse_drone_data(data: ArrayBuffer): DroneData[] {
     // 1. 拼接
@@ -92,6 +94,7 @@ function parse_frame(_frame: ArrayBuffer): DroneData | null {
     toHex(frame)
     //处理基本ID报文
     const get = (type: MSG_Type, index: number, num: number) => [...frame.slice(MSG_HEADER[type] + index,MSG_HEADER[type]+index+num)]
+
     const core:DroneCoreData = {}
     const business:DroneBusinessData = {}
     if(frame[MSG_HEADER.BASE] === 0x01){ //0x01
@@ -102,19 +105,19 @@ function parse_frame(_frame: ArrayBuffer): DroneData | null {
         core.heading = get('POS', 2, 1)[0]
         core.lat = bytesToInt32(get('POS', 5, 4))
         core.lng = bytesToInt32(get('POS', 9, 4))
-        core.speed = get('POS', 3, 1)[0]
+        core.speed =  0.25*get('POS', 3, 1)[0]
         core.altitude_speed = get('POS', 4, 1)[0]
-        core.pressure_altitude = bytesToInt32(get('POS', 13, 2))
-        core.geometric_height = bytesToInt32(get('POS', 15, 2))
-        core.altitude = bytesToInt32(get('POS', 17, 2))
+        core.pressure_altitude = Math.abs(((bytesToUInt16(get('POS', 13, 2)) -2000 ) / 2))
+        core.geometric_height = Math.abs(((bytesToUInt16(get('POS', 15, 2)) - 2000) / 2))
+        core.altitude = Math.abs(((bytesToUInt16(get('POS', 17, 2)) - 2000) / 2))
     }
 
     if(frame[MSG_HEADER.SYSTEM] === 65){
         core.con_lat = bytesToInt32(get('SYSTEM', 2, 4))
         core.con_lng = bytesToInt32(get('SYSTEM', 6, 4))
         core.radius = get('SYSTEM', 12, 1)[0]
-        core.max = bytesToInt32(get('SYSTEM', 13, 2))
-        core.min = bytesToInt32(get('SYSTEM', 15, 2))
+        core.max = Math.abs(((bytesToUInt16(get('SYSTEM', 13, 2)) - 2000) / 2))
+        core.min = Math.abs(((bytesToUInt16(get('SYSTEM', 15, 2)) - 2000) / 2))
     }
 
     return {

@@ -119,7 +119,7 @@ export type MSG_Type = 'BASE'|'POS'|'SYSTEM'
 export interface UomRepBody{
     msg:string
     code:number
-    uomUavRegist:UomRepBody
+    uomUavRegist:UomUavRegist
 }
 
 export interface UomUavRegist{

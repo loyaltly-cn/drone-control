@@ -11,7 +11,7 @@ export interface DroneMapData {
 
 export interface MapInstance {
     updateDevice: (args: DroneCoreData) => void
-    updateDeviceLine: (id: string, points: PosPoint[]) => void
+    updateDeviceLine: (id: string, points: PosPoint) => void
     removeDevice: (id: string) => void
     clear: () => void
     setCenter: (lng: number, lat: number, zoom?: number) => void

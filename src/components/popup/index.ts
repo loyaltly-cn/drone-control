@@ -1,10 +1,18 @@
-// popup.ts
-import { createApp } from 'vue'
+import { createApp, h } from 'vue'
 import com from './index.vue'
 
-export function createPopupEl(props: any) {
+export function createPopupEl(props: any, onLine?: (sn: string) => void) {
     const container = document.createElement('div')
-    createApp(com, props).mount(container)
-    console.log('createPopup')
+
+    const app = createApp({
+        render() {
+            return h(com, {
+                ...props,
+                onLine: onLine  // 绑定 @line 事件
+            })
+        }
+    })
+
+    app.mount(container)
     return container
 }
